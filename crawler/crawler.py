@@ -6,41 +6,39 @@ import time
 import random
 
 MAX_DEPTH = 2
-TEXT_LEN = 200
+TEXT_LEN = 1000
 
 
 def read_seed_urls():
-    seed_urls = []
-
     with open("seed_urls.txt", "r") as f:
-        lines = f.readlines()
-
-        for line in lines:
-            seed_urls.append(line.strip())
-
-    return seed_urls
+        return [line.strip() for line in f.readlines()]
 
 
 def bfs(seed_urls):
-    urls = {}
+    urls = {} # url => { title, text, links }
     depth = 0
-    queue = seed_urls
+    to_be_visited = seed_urls
 
-    while len(queue) > 0 and depth < MAX_DEPTH:
-        new_queue = []
+    while len(to_be_visited) > 0 and depth < MAX_DEPTH:
+        tmp = [] # to_be_visited for the next iteration
 
-        for url in queue:
+        for url in to_be_visited:
             url = url.rstrip("/")
 
-            # filter out: url that is not started with https:// or http://
-            # url is guaranteed to be new
-            if not (url.startswith("https://") or url.startswith("http://")):
+            # filter out:
+            # 1. duplicate
+            # 2. url that is not started with https:// or http://
+            if url in urls or not (
+                url.startswith("https://") or 
+                url.startswith("http://")
+            ):
                 continue
 
             time.sleep(random.uniform(0, 1))
+            print(f"{url}")
             response = requests.get(url)
             soup = BeautifulSoup(response.content, "html.parser")
-            lang = soup.html.get('lang')
+            lang = soup.html.get("lang")
 
             # only crawl english sites
             if lang != "en":
@@ -48,22 +46,20 @@ def bfs(seed_urls):
 
             title = soup.title.string if soup.title else ""
             text = re.sub(r"\s+", " ", soup.get_text()).strip()[:TEXT_LEN]
-            urls[url] = {"url": url, "title": title, "text": text, "in_degree": 0}
-            print(f"{url}")
+            urls[url] = { 
+                "url": url, 
+                "title": title, 
+                "text": text, 
+                "links": [] 
+            }
 
             for a_tag in soup.find_all("a", href=True):
                 link = a_tag["href"].rstrip("/")
-
-                if link in urls:
-                    urls[link]["in_degree"] += 1
-
-                    # link was visited before -> don't put it into queue again
-                    continue 
-
-                new_queue.append(link)
+                urls[url]["links"].append(link)
+                tmp.append(link)
 
         depth += 1
-        queue = new_queue
+        to_be_visited = tmp
 
     return urls
 
