@@ -44,8 +44,7 @@ def bfs(seed_urls):
                 continue
 
             title = soup.title.string if soup.title else ""
-            description_tag = soup.find("meta", attrs={"name": "description"})
-            content = " ".join(re.sub(r"\s+", " ", soup.get_text()).strip().split(" ")[:CONTENT_LENGTH])
+            content = " ".join(re.sub(r"\s+", " ", soup.body.get_text()).strip().split(" ")[:CONTENT_LENGTH])
             urls[url] = {
                 "title": title,
                 "content": content,
