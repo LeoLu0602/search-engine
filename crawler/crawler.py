@@ -5,8 +5,7 @@ import re
 import time
 import random
 
-MAX_DEPTH = 2
-CONTENT_LENGTH = 500
+MAX_DEPTH = 3
 
 
 def read_seed_urls():
@@ -15,7 +14,7 @@ def read_seed_urls():
 
 
 def bfs(seed_urls):
-    urls = {}  # url => { title, text, links }
+    urls = []
     depth = 0
     to_be_visited = seed_urls
 
@@ -37,18 +36,11 @@ def bfs(seed_urls):
             print(f"{url}")
             response = requests.get(url)
             soup = BeautifulSoup(response.content, "html.parser")
-            lang = soup.html.get("lang")
 
-            # only crawl english sites
-            if lang != "en":
+            if not soup.html or soup.html.get("lang") != "en":
                 continue
 
-            title = soup.title.string if soup.title else ""
-            content = " ".join(re.sub(r"\s+", " ", soup.body.get_text()).strip().split(" ")[:CONTENT_LENGTH])
-            urls[url] = {
-                "title": title,
-                "content": content,
-            }
+            urls.append(url)
 
             for a_tag in soup.find_all("a", href=True):
                 link = a_tag["href"].rstrip("/")
@@ -61,7 +53,7 @@ def bfs(seed_urls):
 
 
 def main():
-    print("reading from seed_urls.txt")
+    print("read from seed_urls.txt")
     seed_urls = read_seed_urls()
     print("start crawling")
     urls = bfs(seed_urls[:])
