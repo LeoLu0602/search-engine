@@ -6,7 +6,7 @@ import time
 import random
 
 MAX_DEPTH = 2
-TEXT_LEN = 1000
+CONTENT_LENGTH = 200
 
 
 def read_seed_urls():
@@ -15,12 +15,12 @@ def read_seed_urls():
 
 
 def bfs(seed_urls):
-    urls = {} # url => { title, text, links }
+    urls = {}  # url => { title, text, links }
     depth = 0
     to_be_visited = seed_urls
 
     while len(to_be_visited) > 0 and depth < MAX_DEPTH:
-        tmp = [] # to_be_visited for the next iteration
+        tmp = []  # to_be_visited for the next iteration
 
         for url in to_be_visited:
             url = url.rstrip("/")
@@ -29,8 +29,7 @@ def bfs(seed_urls):
             # 1. duplicate
             # 2. url that is not started with https:// or http://
             if url in urls or not (
-                url.startswith("https://") or 
-                url.startswith("http://")
+                url.startswith("https://") or url.startswith("http://")
             ):
                 continue
 
@@ -45,17 +44,21 @@ def bfs(seed_urls):
                 continue
 
             title = soup.title.string if soup.title else ""
-            text = re.sub(r"\s+", " ", soup.get_text()).strip()[:TEXT_LEN]
-            urls[url] = { 
-                "url": url, 
-                "title": title, 
-                "text": text, 
-                "links": [] 
+            description_tag = soup.find("meta", attrs={"name": "description"})
+            description = (
+                description_tag["content"]
+                if (description_tag and "content" in description_tag)
+                else ""
+            )
+            content = " ".join(re.sub(r"\s+", " ", soup.get_text()).strip().split(" ")[:CONTENT_LENGTH])
+            urls[url] = {
+                "title": title,
+                "description": description,
+                "content": content,
             }
 
             for a_tag in soup.find_all("a", href=True):
                 link = a_tag["href"].rstrip("/")
-                urls[url]["links"].append(link)
                 tmp.append(link)
 
         depth += 1
