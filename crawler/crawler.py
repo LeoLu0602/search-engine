@@ -6,7 +6,7 @@ import time
 import random
 
 MAX_DEPTH = 2
-CONTENT_LENGTH = 200
+CONTENT_LENGTH = 500
 
 
 def read_seed_urls():
@@ -45,15 +45,9 @@ def bfs(seed_urls):
 
             title = soup.title.string if soup.title else ""
             description_tag = soup.find("meta", attrs={"name": "description"})
-            description = (
-                description_tag["content"]
-                if (description_tag and "content" in description_tag)
-                else ""
-            )
             content = " ".join(re.sub(r"\s+", " ", soup.get_text()).strip().split(" ")[:CONTENT_LENGTH])
             urls[url] = {
                 "title": title,
-                "description": description,
                 "content": content,
             }
 
