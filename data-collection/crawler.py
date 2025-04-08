@@ -3,8 +3,10 @@ from bs4 import BeautifulSoup
 import json
 import time
 import random
+from nltk.tokenize import RegexpTokenizer  # type: ignore
 
-MAX_DEPTH = 2
+
+MAX_DEPTH = 0
 
 
 def read_seed_urls():
@@ -12,12 +14,20 @@ def read_seed_urls():
         return [line.strip() for line in f.readlines()]
 
 
+def extract_tokens(text, count):
+    tokenizer = RegexpTokenizer(r"\w+[-'\w]*")
+    tokens = tokenizer.tokenize(text)
+
+    return tokens[:count]
+
+
 def bfs(seed_urls):
-    urls = set()
+    urls = []
+    url_visited = set()
     depth = 0
     to_be_visited = seed_urls
 
-    while len(to_be_visited) > 0 and depth < MAX_DEPTH:
+    while len(to_be_visited) > 0:
         tmp = []  # to_be_visited for the next iteration
 
         for url in to_be_visited:
@@ -26,20 +36,24 @@ def bfs(seed_urls):
             # filter out:
             # 1. duplicate
             # 2. url that is not started with https:// or http://
-            if url in urls or not (
+            if url in url_visited or not (
                 url.startswith("https://") or url.startswith("http://")
             ):
                 continue
 
-            time.sleep(random.uniform(0, 1))
-            print(f"{url}")
+            time.sleep(random.uniform(0, 0.5))
             response = requests.get(url)
             soup = BeautifulSoup(response.content, "html.parser")
 
             if not soup.html or soup.html.get("lang") != "en":
                 continue
 
-            urls.add(url)
+            title = soup.title.get_text() if soup.title else ""
+            body_text = soup.body.get_text() if soup.body else ""
+            content = extract_tokens(body_text, 200)
+            urls.append({"url": url, "title": title, "content": content})
+            url_visited.add(url)
+            print(f"#{len(urls)} {url} (depth: {depth})")
 
             for a_tag in soup.find_all("a", href=True):
                 link = a_tag["href"].rstrip("/")
@@ -48,7 +62,8 @@ def bfs(seed_urls):
         depth += 1
         to_be_visited = tmp
 
-    urls = list(urls)
+        if depth > MAX_DEPTH:
+            break
 
     return urls
 
