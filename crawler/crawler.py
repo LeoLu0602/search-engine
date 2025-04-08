@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-import re
 import time
 import random
 
@@ -14,7 +13,7 @@ def read_seed_urls():
 
 
 def bfs(seed_urls):
-    urls = []
+    urls = set()
     depth = 0
     to_be_visited = seed_urls
 
@@ -40,7 +39,7 @@ def bfs(seed_urls):
             if not soup.html or soup.html.get("lang") != "en":
                 continue
 
-            urls.append(url)
+            urls.add(url)
 
             for a_tag in soup.find_all("a", href=True):
                 link = a_tag["href"].rstrip("/")
@@ -48,6 +47,8 @@ def bfs(seed_urls):
 
         depth += 1
         to_be_visited = tmp
+
+    urls = list(urls)
 
     return urls
 
