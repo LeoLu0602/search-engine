@@ -18,6 +18,7 @@ def read_seed_urls():
 def extract_tokens(text, count):
     tokenizer = RegexpTokenizer(r"\w+[-'\w]*")
     tokens = tokenizer.tokenize(text)
+    tokens = [token.lower() for token in tokens]
 
     return tokens[:count]
 
