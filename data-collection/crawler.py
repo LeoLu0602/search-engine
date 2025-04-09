@@ -5,7 +5,7 @@ import time
 import random
 from nltk.tokenize import RegexpTokenizer  # type: ignore
 from concurrent.futures import ThreadPoolExecutor
-
+from urllib.parse import urlparse
 
 MAX_DEPTH = 1
 
@@ -48,13 +48,22 @@ def visit(url, visited, depth):
 
         for a_tag in soup.find_all("a", href=True):
             link = a_tag["href"].rstrip("/")
+
+            # handle relative path
+            if link.startswith("/"):
+                parsed_url = urlparse(url)
+                base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+                link = base_url + link
+
             links.append(link)
 
         visited.add(url)
         print(f"depth={depth} {url}")
 
         return {"url": url, "title": title, "content": content}, links
-    except:
+    except Exception as e:
+        print(e)
+
         return None
 
 
