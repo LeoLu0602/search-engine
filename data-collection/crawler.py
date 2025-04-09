@@ -44,7 +44,7 @@ def visit(url, visited, depth):
 
         title = soup.title.get_text() if soup.title else ""
         body_text = soup.body.get_text() if soup.body else ""
-        content = extract_tokens(body_text, 200)
+        content = extract_tokens(title + " " + body_text, 1000)
 
         for a_tag in soup.find_all("a", href=True):
             link = a_tag["href"].rstrip("/")
@@ -96,7 +96,7 @@ def main():
     depth = 0
 
     while depth <= MAX_DEPTH and len(to_be_visited) > 0:
-        urls_partial, to_be_visited = crawl(visited, to_be_visited, depth, 20)
+        urls_partial, to_be_visited = crawl(visited, to_be_visited, depth, 30)
         urls += urls_partial
         depth += 1
 
