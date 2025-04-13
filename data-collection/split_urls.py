@@ -1,6 +1,5 @@
 import json
 import os
-import math
 
 
 def read():
@@ -10,6 +9,7 @@ def read():
 
 def split(urls, chunk_size):
     chunks = [urls[i:i + chunk_size] for i in range(0, len(urls), chunk_size)]
+
     if not os.path.exists("urls_chunks"):
         os.mkdir("urls_chunks")
 
