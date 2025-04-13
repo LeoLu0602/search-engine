@@ -12,7 +12,7 @@ def read_urls():
 
 
 def process_urls(urls):
-    index = {}
+    tmp = {}
 
     for url in urls:
         for token in url["content"]:
@@ -22,12 +22,17 @@ def process_urls(urls):
             if token in STOP_WORDS:
                 continue
 
-            if token not in index:
-                index[token] = []
+            if token not in tmp:
+                tmp[token] = []
 
-            index[token].append(url["url"])
+            tmp[token].append(url["url"])
 
-    print(f"{len(index.keys())} tokens")
+    index = []
+
+    for key, val in tmp.items():
+        index.append({"token": key, "urls": val})
+    
+    print(f"{len(index)} tokens")
 
     return index
 
