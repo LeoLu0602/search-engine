@@ -20,7 +20,7 @@ def main():
         chunk = full_list[i : i + chunk_size]
         path = os.path.join(
             f"{sys.argv[1]}_chunks",
-            f"{sys.argv[1]}_{math.floor(i / chunk_size) + 1}_chunks_.json",
+            f"{sys.argv[1]}_{math.floor(i / chunk_size) + 1}_chunks.json",
         )
 
         with open(path, "w") as f:
