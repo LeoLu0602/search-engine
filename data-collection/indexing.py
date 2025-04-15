@@ -23,14 +23,16 @@ def process_urls(urls):
                 continue
 
             if token not in tmp:
-                tmp[token] = []
+                tmp[token] = set()
 
-            tmp[token].append(url["url"])
+            # url["content"] may contain duplicate tokens
+            # use set to avoid duplicates
+            tmp[token].add(url["url"])
 
     index = []
 
     for key, val in tmp.items():
-        index.append({"token": key, "urls": val})
+        index.append({"token": key, "urls": list(val)})
     
     print(f"{len(index)} tokens")
 
