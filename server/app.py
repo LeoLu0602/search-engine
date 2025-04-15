@@ -1,5 +1,10 @@
 from flask import Flask, request, jsonify
+import nltk # type: ignore
 from nltk.tokenize import RegexpTokenizer  # type: ignore
+from nltk.corpus import stopwords  # type: ignore
+
+nltk.download("stopwords") # type: ignore
+STOP_WORDS = set(stopwords.words("english"))
 
 app = Flask(__name__)
 
@@ -7,7 +12,7 @@ app = Flask(__name__)
 def extract_tokens(text):
     tokenizer = RegexpTokenizer(r"\w+[-'\w]*")
     tokens = tokenizer.tokenize(text)
-    tokens = [token.lower() for token in tokens]
+    tokens = [token.lower() for token in tokens if token.lower() not in STOP_WORDS]
     
     return tokens
 
