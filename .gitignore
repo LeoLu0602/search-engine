@@ -3,3 +3,4 @@ env
 .vscode
 *_chunks
 __pycache__/
+.env
