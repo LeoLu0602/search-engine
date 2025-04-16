@@ -33,10 +33,9 @@ def search():
         return jsonify(res)
 
     tokens = extract_tokens(q)
-    urls_dict = {} # url -> appearance
+    urls_dict = {} # url -> # of appearance
 
     for token in tokens:
-        print(token)
         token_urls = db["index"].find_one({"token": token})["urls"]
         
         if not token_urls:
@@ -48,6 +47,4 @@ def search():
             
             urls_dict[url] += 1
 
-    print(urls_dict.keys())
-
-    return jsonify([{"url": "https://www.google.com", "title": "Google"}])
+    return jsonify(sorted(list(urls_dict.keys()), key=lambda url : urls_dict[url], reverse=True)[:10])
